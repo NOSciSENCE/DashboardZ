@@ -1,0 +1,80 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:websocket="http://www.springframework.org/schema/websocket"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket.xsd"
+		>
+    <!-- 需要这一句 -->
+	<mvc:annotation-driven>
+		<!-- 用户将bean对象转换成json -->
+		<mvc:message-converters>
+			<bean
+				class="org.springframework.http.converter.StringHttpMessageConverter" />
+			<bean
+				class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" />
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+    <mvc:default-servlet-handler />
+    <!-- 扫描controller包，使注解生效 -->
+    <context:component-scan base-package="org.ys.dashboardz.controller"></context:component-scan>
+
+	<!-- 配置视图解析器 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+	
+	<!-- 上传文件 -->
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 默认编码 -->
+        <property name="defaultEncoding" value="utf-8" />
+        <!-- 文件大小最大值 -->
+        <property name="maxUploadSize" value="10485760000" />
+        <!-- 内存中的最大值 -->
+        <property name="maxInMemorySize" value="40960" />
+        <!-- 启用是为了推迟文件解析，以便捕获文件大小异常 -->
+        <property name="resolveLazily" value="true"/>
+    </bean>
+
+
+
+    <!--有此，就不必在java里声明sqlsession -->
+    <bean id="mybatisConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- 非必要 ,ref应该为value  beanName 是value   sqlfac是ref -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+        <!-- 重要，指向mapper包并扫描 -->
+        <property name="basePackage" value="mapper"></property>
+    </bean>
+    
+    
+	<bean id="sshShellHandler" class="org.ys.dashboardz.webssh.SshShellHandler" />
+
+	<!-- websocket 和握手包 -->
+    <websocket:handlers>
+       <websocket:mapping path="/websocket" handler="sshShellHandler" />
+       <websocket:handshake-interceptors>
+           <!--处理握手包-->
+           <bean class="org.ys.dashboardz.webssh.HandshakeInterceptor" />
+       </websocket:handshake-interceptors>
+    </websocket:handlers>
+	<!-- 扫描器 -->
+    <context:component-scan base-package="impl"></context:component-scan>
+    <context:component-scan base-package="controller"></context:component-scan>
+    
+    <mvc:interceptors>
+    	<mvc:interceptor>
+    		<mvc:mapping path="/page/*"/>
+    		<mvc:exclude-mapping path="/admin/*"/>
+    		<ref bean="accessInterceptor"/>
+    	</mvc:interceptor>
+    </mvc:interceptors>
+</beans>

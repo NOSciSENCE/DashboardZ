@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dashboardz | Add a new server</title>
+<script src="../js/jquery-3.4.0.min.js"></script>
+<link rel="stylesheet" href="../css/bootstrap.css">
+<script src="../js/bootstrap.min.js"></script>
+<link href="../css/dashboard.css" rel="stylesheet">
+<script src="../js/PanelFunctionInner.js"></script>
+<script src="../js/chart.js"></script>
+</head>
+<body>
+	<nav class="navbar navbar-expand-sm navbar-inverse navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header"></div>
+			<div class="collapse navbar-collapse">
+				<ul class="nav navbar-nav">
+					<li class="nav-item"><a class="nav-link" href="../index.html">DashboardZ</a>
+					</li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+							服务器 <span class="caret"></span>
+					</a>
+						<ul id="services" class="dropdown-menu">
+							<li><a class="dropdown-item" href="serverList.html">服务器列表</a></li>
+							<li><a class="dropdown-item" href="newServer.html">添加服务器</a></li>
+							<li><a class="dropdown-item" href="allServer.html">综合管理</a></li>
+						</ul></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">管理
+							<span class="caret"></span>
+					</a>
+						<ul id="management" class="dropdown-menu">
+							<li><a class="dropdown-item" href="#"></a></li>
+							<li><a class="dropdown-item" href="#"></a></li>
+							<li><a class="dropdown-item" href="#"></a></li>
+						</ul></li>
+					<li class="nav-item"><a class="nav-link" href="#">服务器总览</a></li>
+				</ul>
+				<ul id="commandcap" class="nav navbar-nav navbar-right">
+					<li><a href="#">News <span class="badge">42</span></a></li>
+					<li class="dropdown"><a id="adminName" href="#"
+						class="dropdown-toggle" data-toggle="dropdown" role="button"
+						aria-haspopup="true" aria-expanded="false">AdminName <span
+							class="glyphicon glyphicon-user"> </span> <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="serverList.html">Servers</a></li>
+							<li><a href="serverAlarms.html">Alarms</a></li>
+							<li role="separator" class="divider"></li>
+							<li><a onclick="logout()">Logout <span
+									class="glyphicon glyphicon-off"></span>
+							</a></li>
+						</ul></li>
+				</ul>
+				<ul id="cap" class="nav navbar-nav navbar-right">
+					<li><a href="../login.html">Login</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-sm-3 col-md-2 sidebar">
+				<ul class="nav nav-sidebar">
+					<li><a href="serverInfo.html">总览Overview</a></li>
+					<li><a href="serverDetail.html">服务器数据</a></li>
+					<li class="active"><a href="serverChart.html">运行状态图</a></li>
+					<li><a href="serverProcess.html">服务器进程</a></li>
+				</ul>
+				<ul class="nav nav-sidebar">
+					<li><a href="serverSecure.html">安全性</a></li>
+					<li><a href="serverPort.html">端口与规则</a></li>
+					<li><a href="serverAlarm.html">告警</a></li>
+				</ul>
+				<ul class="nav nav-sidebar">
+					<li><a href="serverLog.html">日志</a></li>
+					<li><a href="serverFileSystem.html">文件系统</a></li>
+				</ul>
+				<ul class="nav nav-sidebar">
+					<li><a href="serverTerminal.html">控制台Terminal</a></li>
+				</ul>
+			</div>
+			<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+				<h1 class="page-header">Dashboard</h1>
+				<div class="row placeholders">
+					<div class="col-xs-6 col-sm-4 placeholder">
+						<canvas id="mempie"></canvas>
+						<h4>Memory内存</h4>
+						<span class="text-muted">内存组成</span>
+					</div>
+					<div class="col-xs-6 col-sm-4 placeholder">
+						<canvas id="diskpie"></canvas>
+						<h4>Disk硬盘</h4>
+						<span class="text-muted">硬盘使用情况</span>
+					</div>
+				</div>
+				<div class="row placeholders">
+					<div class="col-xs-6 col-sm-4 placeholder">
+						<canvas id="cpuchart"></canvas>
+						<h4>CPU使用率</h4>
+						<span class="text-muted"></span>
+					</div>
+					<div class="col-xs-6 col-sm-4 placeholder">
+						<canvas id="memchart"></canvas>
+						<h4>Memory内存</h4>
+						<span class="text-muted"></span>
+					</div>
+					<div class="col-xs-6 col-sm-4 placeholder">
+						<canvas id="diskchart"></canvas>
+						<h4>Disk硬盘</h4>
+						<span class="text-muted"></span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+	function loadData() {
+		//TODO  get chart data
+		//alert("enter");
+		//load runtime date
+		$.ajax({
+			url : 'data',
+			type : 'POST',
+			dataType : 'json',
+			//data:,
+			success : function(data) {
+				//alert("load success");
+				draw(data)
+
+				//window.location.href="index.html"; 
+			},
+			error : function(data) {
+				console.log("load data fail");
+
+			}
+		})
+	}
+
+	addLoadEvent(loadData);
+	addLoadEvent(data);
+	window.setInterval(data, 10000);
+	// $bu" "$ca" "$used" "$total" "$free" "$mem" "$size" "$used" "$avail" "$useper"
+	// buff cached us total free mem size used avail useper
+	function data() {
+		$.ajax({
+			url : 'realtimedata',
+			type : 'POST',
+			dataType : 'json',
+			success : function(data) {
+				drawpie(data.extend.data);
+			},
+		})
+	}
+	
+	function drawpie(serverData){
+		console.log(serverData);
+		console.log(serverData.buff);
+		
+		var memdata = {
+			    datasets: [{
+			        data: [serverData.buff, serverData.cached, serverData.us, serverData.free],
+			        backgroundColor: [
+			        	"rgba(154, 255, 154,0.4)",//green
+			        	"rgba(192, 255, 62,0.4)",//yellow
+                        "rgba(255, 99, 71,0.4)",//red
+                        "rgba(152, 245, 255,0.4)" //blue
+                    ]
+			    }],
+
+			    // These labels appear in the legend and in the tooltips when hovering different arcs
+			    labels: [
+			        'buff',
+			        'cached',
+			        'used',
+			        'free'
+			    ]
+			};
+		var memctx = document.getElementById('mempie').getContext('2d');
+		var memPieChart = new Chart(memctx, {
+		    type: 'pie',
+		    data: memdata,
+		    options: {}
+		});
+		
+		var diskdata = {
+			    datasets: [{
+			        data: [serverData.used, serverData.avail],
+			        backgroundColor: [
+			        	"rgba(255, 99, 71,0.4)", //tomato
+			        	"rgba(152, 245, 255,0.4)" //blue
+                    ]
+			    }],
+
+			    // These labels appear in the legend and in the tooltips when hovering different arcs
+			    labels: [
+			        'used',
+			        'avail'
+			    ]
+			};
+		var diskctx = document.getElementById('diskpie').getContext('2d');
+		var diskPieChart = new Chart(diskctx, {
+		    type: 'pie',
+		    data: diskdata,
+		    options: {}
+		});
+		
+		
+	}
+
+
+	function draw(d) {
+		//d = eval('('+d+')'); 
+		var timelist = d.time;
+		var cpulist = d.cpu;
+		var memlist = d.mem;
+		var disklist = d.disk;
+		//alert(d.cpu);
+		var ctx1 = document.getElementById('cpuchart').getContext('2d');
+		var chart1 = new Chart(ctx1, {
+			type : 'line',
+			data : {
+				labels : timelist,
+				datasets : [ {
+					label : 'cpurate',
+					data : cpulist,
+					backgroundColor : "rgba(122,197, 205,0.4)",
+					borderColor : "rgba(122,197, 205,1)",
+					pointRadius : 0,
+					borderCapStyle : 'butt'
+				} ]
+			},
+			options : {}
+		});
+
+		var ctx2 = document.getElementById('memchart').getContext('2d');
+		var chart2 = new Chart(ctx2, {
+			type : 'line',
+			data : {
+				labels : timelist,
+				datasets : [ {
+					label : 'memrate',
+					data : memlist,
+					backgroundColor : "rgba(102,205,170,0.4)",
+					borderColor : "rgba(102,205,170,1)",
+					pointRadius : 0,
+					borderCapStyle : 'butt'
+				} ]
+			},
+			options : {}
+		});
+		var ctx3 = document.getElementById('diskchart').getContext('2d');
+		var chart3 = new Chart(ctx3, {
+			type : 'line',
+			data : {
+				labels : timelist,
+				datasets : [ {
+					label : 'diskrate',
+					data : disklist,
+					backgroundColor : "rgba(205,190,112,0.4)",
+					borderColor : "rgba(205,190,112,1)",
+					pointRadius : 0,
+					borderCapStyle : 'butt'
+				} ]
+			},
+			options : {}
+		});
+	}
+</script>
+</body>
+</html>
+

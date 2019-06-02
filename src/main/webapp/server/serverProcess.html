@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dashboardz | Server Process</title>
+<script src="../js/jquery-3.4.0.min.js"></script>
+<link rel="stylesheet" href="../css/bootstrap.css">
+<script src="../js/bootstrap.min.js"></script>
+<link href="../css/dashboard.css" rel="stylesheet">
+<script src="../js/PanelFunctionInner.js"></script>
+<script src="../js/chart.js"></script>
+</head>
+<body>
+	<nav class="navbar navbar-expand-sm navbar-inverse navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header"></div>
+			<div class="collapse navbar-collapse">
+				<ul class="nav navbar-nav">
+					<li class="nav-item"><a class="nav-link" href="../index.html">DashboardZ</a>
+					</li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+							服务器 <span class="caret"></span>
+					</a>
+						<ul id="services" class="dropdown-menu">
+							<li><a class="dropdown-item" href="serverList.html">服务器列表</a></li>
+							<li><a class="dropdown-item" href="newServer.html">添加服务器</a></li>
+							<li><a class="dropdown-item" href="allServer.html">综合管理</a></li>
+						</ul></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">管理
+							<span class="caret"></span>
+					</a>
+						<ul id="management" class="dropdown-menu">
+							<li><a class="dropdown-item" href="#"></a></li>
+							<li><a class="dropdown-item" href="#"></a></li>
+							<li><a class="dropdown-item" href="#"></a></li>
+						</ul></li>
+					<li class="nav-item"><a class="nav-link" href="#">服务器总览</a></li>
+				</ul>
+				<ul id="commandcap" class="nav navbar-nav navbar-right">
+					<li><a href="#">News <span class="badge">42</span></a></li>
+					<li class="dropdown"><a id="adminName" href="#"
+						class="dropdown-toggle" data-toggle="dropdown" role="button"
+						aria-haspopup="true" aria-expanded="false">AdminName <span
+							class="glyphicon glyphicon-user"> </span> <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="serverList.html">Servers</a></li>
+							<li><a href="serverAlarms.html">Alarms</a></li>
+							<li role="separator" class="divider"></li>
+							<li><a onclick="logout()">Logout <span
+									class="glyphicon glyphicon-off"></span>
+							</a></li>
+						</ul></li>
+				</ul>
+				<ul id="cap" class="nav navbar-nav navbar-right">
+					<li><a href="../login.html">Login</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-sm-3 col-md-2 sidebar">
+				<ul class="nav nav-sidebar">
+					<li><a href="serverInfo.html">总览Overview</a></li>
+					<li><a href="serverDetail.html">服务器数据</a></li>
+					<li><a href="serverChart.html">运行状态图</a></li>
+					<li class="active"><a href="serverProcess.html">服务器进程</a></li>
+				</ul>
+				<ul class="nav nav-sidebar">
+					<li><a href="serverSecure.html">安全性</a></li>
+					<li><a href="serverPort.html">端口与规则</a></li>
+					<li><a href="serverAlarm.html">告警</a></li>
+				</ul>
+				<ul class="nav nav-sidebar">
+					<li><a href="serverLog.html">日志</a></li>
+					<li><a href="serverFileSystem.html">文件系统</a></li>
+				</ul>
+				<ul class="nav nav-sidebar">
+					<li><a href="serverTerminal.html">控制台Terminal</a></li>
+				</ul>
+			</div>
+			<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+								<h1 class="page-header">Dashboard</h1>
+				<div class="row ">
+					<div class="col-xs-6 col-sm-4 ">服务器实时进程</div>
+				</div>
+				<div class="row placeholders"></div>
+				<div class="table-responsive">
+					<table class="table table-striped">
+						<thead id="title">
+							<tr>
+								<th>用户</th>
+								<th>内存占用</th>
+								<th>cpu占用</th>
+								<th>属组</th>
+								<th>命令</th>
+								<th>优先级</th>
+								<th>进程ID</th>
+								<th>进程状态</th>
+							</tr>
+						</thead>
+						<tbody id="tbody">
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		function loadProcess() {
+			//TODO  get chart data
+			//alert("enter");
+			$.ajax({
+				url : '../server/process',
+				type : 'POST',
+				dataType : 'json',
+				//data:,
+				success : function(data) {
+					var content = "";
+					for(var i = 0; i<data.length; ++i){
+						content = content + "<tr>";
+						content = content + "<td>" + data[i].user + "</td>";
+						content = content + "<td>" + data[i].mem + "</td>";
+						content = content + "<td>" + data[i].cpu + "</td>";
+						content = content + "<td>" + data[i].group + "</td>";
+						content = content + "<td>" + data[i].command + "</td>";
+						content = content + "<td>" + data[i].ni + "</td>";
+						content = content + "<td>" + data[i].pid + "</td>";
+						content = content + "<td>" + data[i].stat + "</td>";
+						content = content + "</tr>";
+					}
+					$('#tbody').html(content);
+				},
+				error : function(data) {
+
+				}
+			})
+			//TODO fill data in
+
+		}
+
+		addLoadEvent(loadProcess)
+		window.setInterval(loadProcess, 1000);
+	</script>
+</body>
+</html>
+

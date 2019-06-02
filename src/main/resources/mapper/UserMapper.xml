@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.ys.dashboardz.mapper.AdminMapper">
+    <insert id="add" parameterType="org.ys.dashboardz.bean.Admin">
+        insert admin (
+			name,
+			pwd,
+			access,
+			email,
+			phone
+        )
+        values(
+	        #{name},
+	        #{pwd},
+	        #{access},
+	        #{email},
+	        #{phone}
+        )
+
+    </insert>
+    <select id="findById" parameterType="int" resultType="org.ys.dashboardz.bean.Admin">
+        select id,
+            name,
+            pwd
+        from
+            admin
+        where id = #{id}
+    </select>
+	<select id="findByName" resultType="org.ys.dashboardz.bean.Admin">
+		select id,
+			name,
+			pwd,
+			access,
+			email,
+			phone
+	    from
+	    	admin
+	    where
+	        name=#{name}
+	</select>
+    <select id="listAll" resultType="org.ys.dashboardz.bean.Admin">
+        select *
+        from admin
+    </select>
+    <delete id="del" parameterType="int">
+        delete
+        from admin
+        where id = #{id}
+    </delete>
+</mapper>

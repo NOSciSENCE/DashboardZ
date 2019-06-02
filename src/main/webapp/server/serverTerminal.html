@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dashboardz | Terminal</title>
+<script src="../js/jquery-3.4.0.min.js"></script>
+<link rel="stylesheet" href="../css/bootstrap.css">
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/PanelFunctionInner.js"></script>
+<script src="../js/chart.js"></script>
+<link href="../css/dashboard.css" rel="stylesheet">
+<script src="../js/term.js"></script>
+</head>
+<body>
+	<nav class="navbar navbar-expand-sm navbar-inverse navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header"></div>
+			<div class="collapse navbar-collapse">
+				<ul class="nav navbar-nav">
+					<li class="nav-item"><a class="nav-link" href="../index.html">DashboardZ</a>
+					</li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+							服务器 <span class="caret"></span>
+					</a>
+						<ul id="services" class="dropdown-menu">
+							<li><a class="dropdown-item" href="serverList.html">服务器列表</a></li>
+							<li><a class="dropdown-item" href="newServer.html">添加服务器</a></li>
+							<li><a class="dropdown-item" href="allServer.html">综合管理</a></li>
+						</ul></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">管理
+							<span class="caret"></span>
+					</a>
+						<ul id="management" class="dropdown-menu">
+							<li><a class="dropdown-item" href="#"></a></li>
+							<li><a class="dropdown-item" href="#"></a></li>
+							<li><a class="dropdown-item" href="#"></a></li>
+						</ul></li>
+					<li class="nav-item"><a class="nav-link" href="#">服务器总览</a></li>
+				</ul>
+				<ul id="commandcap" class="nav navbar-nav navbar-right">
+					<li><a href="#">News <span class="badge">42</span></a></li>
+					<li class="dropdown"><a id="adminName" href="#"
+						class="dropdown-toggle" data-toggle="dropdown" role="button"
+						aria-haspopup="true" aria-expanded="false">AdminName <span
+							class="glyphicon glyphicon-user"> </span> <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="serverList.html">Servers</a></li>
+							<li><a href="serverAlarms.html">Alarms</a></li>
+							<li role="separator" class="divider"></li>
+							<li><a onclick="logout()">Logout <span
+									class="glyphicon glyphicon-off"></span>
+							</a></li>
+						</ul></li>
+				</ul>
+				<ul id="cap" class="nav navbar-nav navbar-right">
+					<li><a href="../login.html">Login</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-sm-3 col-md-2 sidebar">
+				<ul class="nav nav-sidebar">
+					<li><a href="serverInfo.html">总览Overview</a></li>
+					<li><a href="serverDetail.html">服务器数据</a></li>
+					<li><a href="serverChart.html">运行状态图</a></li>
+					<li><a href="serverProcess.html">服务器进程</a></li>
+				</ul>
+				<ul class="nav nav-sidebar">
+					<li><a href="serverSecure.html">安全性</a></li>
+					<li><a href="serverPort.html">端口与规则</a></li>
+					<li><a href="serverAlarm.html">告警</a></li>
+				</ul>
+				<ul class="nav nav-sidebar">
+					<li><a href="serverLog.html">日志</a></li>
+					<li><a href="serverFileSystem.html">文件系统</a></li>
+				</ul>
+				<ul class="nav nav-sidebar">
+					<li class="active"><a href="serverTerminal.html">控制台Terminal</a></li>
+				</ul>
+			</div>
+			<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+				<ol class="breadcrumb">
+					<li><a href="serverList.html">List</a></li>
+					<li><a href="serverInfo.html">Server</a></li>
+					<li class="active">Terminal</li>
+				</ol>
+				<div class="container">
+					<div id="terms"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+<script>
+	//var term = new Terminal();
+	//term.open(document.getElementById('terminal'));
+	//term.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
+	//<input type="hidden" id="wsHost" value="/websocket">
+	$(function() {
+		createWebSocket();
+	});
+	//--------------------------------------------------------------
+	//create websocket connection
+	//--------------------------------------------------------------
+	function createWebSocket() {
+
+		//wshost = ip:port
+		var domain = window.location.host;
+		var wsHost = $("#wsHost").val();
+		var client = new WebSocket("ws://" + domain
+				+ "/dashboardz/websocket");
+		var term = null;
+
+		client.onopen = function(evt) {
+			console.log("Connection open ...");
+			//width and height
+			$width = $('.layui-body').width();
+			$height = $('.layui-body').height();
+
+			//terminal UI
+			term = new Terminal({
+				cols : Math.floor($width / 7.25),
+				rows : Math.floor($height / 17.42),
+				screenKeys : false,
+				useStyle : true,
+				cursorBlink : true,
+				convertEol : true
+			});
+			//term.open($("#content_term").empty()[0]);
+			term.open(document.getElementById('terms'));
+			console.log("now")
+			//term.on方法就是实时监控输入的字段，
+			term.on('data', function(data) {
+				client.send(data);
+			});
+		};
+
+		//receive
+		client.onmessage = function(evt) {
+			console.log("Received Message: " + evt.data);
+			//写数据到term 控制台
+			term.write(evt.data);
+		};
+
+		//close
+		client.onclose = function(evt) {
+			console.log("连接关闭");
+		};
+
+		//fail
+		client.onerror = function(event) {
+			console.log("连接失败");
+		};
+
+	}
+</script>
+</body>
+</html>
+

@@ -1,0 +1,31 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <!-- 引入properties文件 -->
+    <!-- 之后即可java中使用 @Value ("#{cfg.XX}") -->
+    <util:properties id="cfg" location="classpath:config.properties"></util:properties>
+
+    <!-- 利用Spring容器管理数据库连接池    DBCP -->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="#{cfg.driver}"></property>
+        <property name="url" value="#{cfg.url}"></property>
+        <property name="username" value="#{cfg.username}"></property>
+        <property name="password" value="#{cfg.password}"></property>
+        <property name="maxActive" value="#{cfg.maxActive}"></property>
+    </bean>
+    
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="mapperLocations" value="classpath:mapper/*.xml"></property>
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+        <property name="basePackage" value="org.ys.dashboardz.mapper"></property>
+    </bean>
+	
+</beans>
