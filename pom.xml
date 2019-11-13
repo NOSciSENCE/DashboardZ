@@ -9,7 +9,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<properties>
-		<jackson.version>2.5.4</jackson.version>
+		<jackson.version>2.10.1</jackson.version>
 	</properties>
 
 
