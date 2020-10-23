@@ -47,7 +47,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>8.0.11</version>
+			<version>8.0.16</version>
 		</dependency>
 		<!-- 数据库连接池，第三方组件，可用spring管理（XML） -->
 		<dependency>
